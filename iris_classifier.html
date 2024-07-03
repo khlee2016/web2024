@@ -1,0 +1,85 @@
+<html lang="ko">
+<head>
+    <meta charset="UTF-8"/>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest"></script>
+    <script lang="js">
+
+        
+        async function run(){
+            const csvUrl = 'iris.csv';
+            const trainingData = tf.data.csv(csvUrl, {
+                columnConfigs: {
+                    species: {
+                        isLabel: true
+                    }
+                }
+            });
+            console.log(await trainingData);
+            //await trainingData.print();
+
+            const numOfFeatures = (await trainingData.columnNames()).length - 1;
+            const numOfSamples = 150;
+            const convertedData =
+                trainingData.map(({xs, ys}) => {
+                    const labels = [
+                        ys.species == "setosa" ? 1 : 0,
+                        ys.species == "virginica" ? 1 : 0,
+                        ys.species == "versicolor" ? 1 : 0
+                    ]
+                    //console.log(Object.values(xs))
+                    //console.log(Object.values(labels))
+                    const aa = { xs: Object.values(xs), ys: Object.values(labels)}
+                    console.log(aa, aa.xs, aa.ys)
+                    return aa;
+                }).batch(10);
+            console.log("aaa", await convertedData);
+            //console.log(await convertedData);
+            //await convertedData.print()
+            
+            const model = tf.sequential();
+            model.add(tf.layers.dense({inputShape: [numOfFeatures], activation: "sigmoid", units: 5}))
+            model.add(tf.layers.dense({activation: "softmax", units: 3}));
+
+            model.compile({loss: "categoricalCrossentropy", optimizer: tf.train.adam(0.06)});
+
+            await model.fitDataset(convertedData,
+                { epochs: 10, //100,
+                  callbacks: {
+                      onEpochEnd: async(epoch, logs) => {
+                          console.log("Epoch: " + epoch +
+                                      " Loss: " + logs.loss);
+                      }
+                  }
+                }
+            );
+            console.log(convertedData);
+
+            // Test Cases:
+
+            // Setosa
+            const testVal = tf.tensor2d([4.4, 2.9, 1.4, 0.2], [1, 4]);
+            console.log("bb")
+            console.log(testVal);
+
+            // Versicolor
+            // const testVal = tf.tensor2d([6.4, 3.2, 4.5, 1.5], [1, 4]);
+
+            // Virginica
+            // const testVal = tf.tensor2d([5.8,2.7,5.1,1.9], [1, 4]);
+
+            const prediction = model.predict(testVal);
+            const pIndex = tf.argMax(prediction, axis=1).dataSync();
+
+            const classNames = ["Setosa", "Virginica", "Versicolor"];
+
+            // alert(prediction)
+            alert(classNames[pIndex[0]])
+
+        }
+        run();
+    </script>
+</head>
+<body>
+    <h1>붓꽃 분류기</h1>
+</body>
+</html>

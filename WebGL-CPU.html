@@ -1,0 +1,54 @@
+<html lang="ko">
+<head>
+    <meta charset="UTF-8"/>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest"></script>
+    <script lang="js">
+      function tftest(cpu) {
+        if ( cpu ) {
+          tf.setBackend('cpu');
+          console.log(tf.getBackend());
+        }
+        else {
+          tf.setBackend('webgl');
+          console.log(tf.getBackend());
+        }
+        var start_time = new Date()
+        console.log("start_time: " + start_time + "ms")
+        async function doTraining(model){
+            const history =
+                await model.fit(xs, ys,
+                    { epochs: 500,
+                        callbacks:{
+                            onEpochEnd: async(epoch, logs) =>{
+                                if ( (epoch>=99) && (epoch%100) == 99 )
+                                    console.log("에포크:"
+                                            + epoch
+                                            + " 손실:"
+                                            + logs.loss);
+                            }
+                        }
+                    });
+        }
+        const model = tf.sequential();
+        model.add(tf.layers.dense({units: 1, inputShape: [1]}));
+        model.compile({loss:'meanSquaredError', optimizer:'sgd'});
+        model.summary();
+        const xs = tf.tensor2d([-1.0, 0.0, 1.0, 2.0, 3.0, 4.0], [6, 1]);
+        const ys = tf.tensor2d([-3.0, -1.0, 2.0, 3.0, 5.0, 7.0], [6, 1]);
+        doTraining(model).then(() => {
+            let result = model.predict(tf.tensor2d([10], [1,1]))
+            var end_time = new Date()
+            console.log("end_time: " + end_time + "ms")
+            console.log(end_time - start_time + "ms")
+            console.log(result + ":" + (end_time - start_time) + "ms");
+            alert(result + ":" + (end_time - start_time) + "ms");
+        });
+    }
+    </script>
+</head>
+<body>
+    <h1>첫 번째 HTML 페이지</h1>
+    <h2><button onclick="tftest(false)">WebGL</button></h2>
+    <h2><button onclick="tftest(true)">CPU</button></h2>
+</body>
+</html>
