@@ -1,0 +1,159 @@
+<html>
+<head>
+<style>
+div {
+  margin : 20px;
+}
+.cc {
+  display : flex;
+  justify-content: center;
+  align-items: center;
+}
+.ccc {
+  align-self: center;
+}
+
+@keyframes example {
+  0%   {width:0px; height:500px;}
+  25%  {width:400px; height:500px;}
+  50%  {width:600px; height:500px;}
+  75%  {width:800px; height:500px;}
+  100% {width:1000px; height:500px;}
+}
+img#b {
+  animation-name: example;
+  animation-duration: 1s;
+}
+.imgg {
+  display : inline-block;
+}
+
+#btn {
+  text-align: center;
+}
+</style>
+<script>
+
+cc = 6;
+img_arr = [];
+
+img_arr[0] = "images/11.jpg"
+img_arr[1] = "images/1.jpg"
+img_arr[2] = "images/2.jpg"
+img_arr[3] = "images/3.jpg"
+img_arr[4] = "images/4.jpg"
+img_arr[5] = "images/5.jpg"
+img_arr[6] = "images/6.jpg"
+img_arr[7] = "images/7.jpg"
+img_arr[8] = "images/8.jpg"
+img_arr[9] = "images/9.jpg"
+img_arr[10] = "images/10.jpg"
+
+img_num = img_arr.length;
+
+function left() {
+    cc += 1;
+    cc %= img_num;
+    document.querySelector("#b").src = img_arr[cc];
+    document.querySelector("#a").src = img_arr[(cc+(img_num-1))%img_num];
+    document.querySelector("#c").src = img_arr[(cc+1)%img_num];
+    startAnim();
+}
+
+function right() {
+    cc += (img_num-1);
+    cc %= img_num;
+    document.querySelector("#b").src = img_arr[cc];
+    document.querySelector("#a").src = img_arr[(cc+(img_num-1))%img_num];
+    document.querySelector("#c").src = img_arr[(cc+1)%img_num];
+    startAnim();
+}
+
+animid = null;
+elop = 0;
+function startAnim() {
+    if ( animid != null ) {
+        clearInterval(animid);
+    }
+    el = document.querySelector("#b").style;
+    document.querySelector("#b").style.opacity = 0;
+    elop = 0;
+    animid = setInterval(function() {
+                        if ( elop < 1.0 ) {
+                          //console.log(elop);
+                          elop += 0.02;
+                          document.querySelector("#b").style.opacity = elop;
+                          //console.log("->" + document.querySelector("#b").style.opacity);
+                        } else {
+                            clearInterval(animid);
+                            animid = null;
+                        }
+                    }, 50);
+}
+
+document.onkeydown = function(e) {
+    switch (e.keyCode) {
+        case 37:
+            //alert('left');
+            left();
+            break;
+        case 38:
+            //alert('up');
+            break;
+        case 39:
+            //alert('right');
+            right();
+            break;
+        case 40:
+            //alert('down');
+            break;
+        default:
+            //alert('down');
+            break;
+    }
+};
+
+arid = null;
+function auto_right() {
+    auto_stop();
+    arid = setInterval(right, 2000);
+}
+
+alid = null;
+function auto_left() {
+    auto_stop();
+    alid = setInterval(left, 2000);
+}
+
+function auto_stop() {
+    if (alid) {
+       clearInterval(alid);
+       alid = null;
+    }
+    if (arid) {
+       clearInterval(arid);
+       arid = null;
+    }
+}
+
+</script>
+</head>
+<body>
+<div class="cc">
+ <div>
+  <img id="a" class="ccc" height=200px width="100px" src="images/5.jpg" onclick="right()">
+ </div>
+ <div>
+  <img id="b" height=500px width="1000px" src="images/6.jpg">
+ </div>
+ <div>
+  <img id="c" class="ccc" height=200px width="100px" src="images/7.jpg" onclick="left()">
+ </div>
+</div>
+<div id="btn">
+  <button onclick="auto_right()">auto<-</button>
+  <button onclick="auto_stop()">stop</button>
+  <button onclick="auto_left()">->auto</button>
+</div>
+</body>
+</html>
